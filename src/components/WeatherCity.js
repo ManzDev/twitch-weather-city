@@ -1,15 +1,21 @@
 import "./BuildingCity.js";
 import "./CloudCity.js";
 import "./RainCity.js";
+import "./RainbowCity.js";
+
+const DAY_MOMENT = [
+  "dawn", "day", "sunset", "night"
+];
 
 const BUILDINGS_NUMBER = 6;
-const TIME_TO_CHANGE_STAGE = 10000;
+const TIME_TO_CHANGE_STAGE = 10000; // 10000;
 const CLOUDS_NUMBER = 10;
 
 class WeatherCity extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
+    this.currentMoment = 1;
   }
 
   static get styles() {
@@ -25,30 +31,37 @@ class WeatherCity extends HTMLElement {
         flex-direction: column;
         justify-content: flex-end;
 
+        background: var(--bgcolor);
         transition: background 1.5s;
         position: relative;
         overflow: hidden;
       }
 
-      :host(.night) .container {
-        background: #0f0c20;
-      }
-
-      :host(.day) .container {
-        background: #1588b6;
-      }
-
-      :host(.night) {
+      :host(.night),
+      :host(.sunset) {
+        --bgcolor: #0f0c20;
         --window-turnoff-color: #000;
         --window-color: #d3a50f;
         --shine-color: gold;
       }
 
-      :host(.day) {
+      :host(.sunset) {
+        --bgcolor: #af5328;
+      }
+
+      :host(.day),
+      :host(.dawn) {
+        --bgcolor: #1588b6;
         --window-turnoff-color: #1c1d1dff;
         --window-color: #d3a50f22;
         --shine-color: transparent;
       }
+
+      :host(.dawn) {
+        --bgcolor: #b962b5;
+      }
+
+      /* Moon & Sun */
 
       .sun,
       .moon {
@@ -82,14 +95,26 @@ class WeatherCity extends HTMLElement {
       }
 
       :host(.night) .moon,
-      :host(.day) .sun {
+      :host(.sunset) .moon,
+      :host(.day) .sun,
+      :host(.dawn) .sun {
         transform: translate(0, 0);
       }
 
       :host(.day) .moon,
-      :host(.night) .sun {
+      :host(.dawn) .moon,
+      :host(.night) .sun,
+      :host(.sunset) .sun {
         transform: translate(0, 500px);
       }
+
+      /*
+      :host(.night) rainbow-city,
+      :host(.sunset) rainbow-city {
+        visibility: hidden;
+        transition: visibility 0.25s;
+      }
+      */
 
       .clouds {
         width: 100%;
@@ -99,11 +124,20 @@ class WeatherCity extends HTMLElement {
         z-index: 5;
       }
 
+      :host(.night) .clouds {
+        --opacity-factor: 0.1;
+      }
+
+      :host(.sunset) .clouds {
+        --opacity-factor: 0.25;
+      }
+
       .buildings {
         width: 100%;
         height: 75%;
 
         display: flex;
+        justify-content: flex-end;
         align-items: flex-end;
 
         position: relative;
@@ -115,6 +149,8 @@ class WeatherCity extends HTMLElement {
   connectedCallback() {
     this.render();
     setInterval(() => this.changeStage(), TIME_TO_CHANGE_STAGE);
+
+    this.addEventListener("STOP_RAIN", () => this.showRainbow());
   }
 
   generateBuildings() {
@@ -125,9 +161,22 @@ class WeatherCity extends HTMLElement {
     return "<cloud-city></cloud-city>".repeat(CLOUDS_NUMBER);
   }
 
+  showRainbow() {
+    const rainbowCity = document.createElement("rainbow-city");
+    this.shadowRoot.querySelector(".clouds").appendChild(rainbowCity);
+  }
+
   changeStage() {
-    this.classList.toggle("night");
-    this.classList.toggle("day");
+    this.classList.remove(DAY_MOMENT[this.currentMoment]);
+    this.currentMoment = (this.currentMoment + 1) % DAY_MOMENT.length;
+    this.classList.add(DAY_MOMENT[this.currentMoment]);
+
+    const event = new CustomEvent("DAY_MOMENT_CHANGE", {
+      detail: DAY_MOMENT[this.currentMoment],
+      bubbles: true,
+      composed: true
+    });
+    this.dispatchEvent(event);
   }
 
   render() {

@@ -1,6 +1,9 @@
 html {
   height: 100vh;
-  background: linear-gradient(#224, #445) fixed;
+  background-color: var(--bgcolor, #224);
+  background-image: linear-gradient(transparent, #fff3);
+  background-attachment: fixed;
+  transition: background-color 1.5s ease-in-out;
 }
 
 body {

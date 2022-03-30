@@ -1,4 +1,5 @@
 import "./WeatherCity.js";
+import "./ManzdevStatus.js";
 
 const OPTIONS = [
   {
@@ -35,45 +36,18 @@ class WeatherCard extends HTMLElement {
         background: #fff;
         box-shadow: 0 0 25px 5px #0008;
         position: relative;
-      }
-
-      .zone {
-        position: absolute;
-        bottom: 0;
         overflow: hidden;
-        display: grid;
-        grid-template-columns: 0.5fr 1.5fr;
-        align-items: flex-end;
-        padding: 20px;
-        padding-bottom: 0;
       }
 
-      .zone .text {
-        position: relative;
+      manzdev-status {
+        transform: translateY(165px);
+        transition: transform 1s;
+        display: flex;
+
       }
 
-      .zone h2 {
-        font-family: "Bebas Neue";
-        font-size: 32px;
-        margin: 0;
-        border-bottom: 2px solid red;
-        margin-bottom: 15px;
-      }
-
-      .zone p {
-        font-family: EnterCommand;
-        font-size: 30px;
-        margin: 0;
-        margin-bottom: 0.75em;
-        line-height: 70%;
-        letter-spacing: -0.5px;
-        text-shadow: 0 0 2px #0004;
-      }
-
-      .zone img {
-        max-width: 160px;
-        transform: translateY(15px) rotate(-5deg);
-        filter: drop-shadow(0 0 5px #0008);
+      .hide {
+        transform: translateY(340px);
       }
     `;
   }
@@ -86,6 +60,20 @@ class WeatherCard extends HTMLElement {
 
   connectedCallback() {
     this.render();
+
+    this.addEventListener("START_RAIN", () => this.onStartRain());
+    this.addEventListener("STOP_RAIN", () => this.onStopRain());
+    this.onStopRain();
+  }
+
+  onStartRain() {
+    this.shadowRoot.querySelector(".rain").classList.remove("hide");
+    this.shadowRoot.querySelector(".normal").classList.add("hide");
+  }
+
+  onStopRain() {
+    this.shadowRoot.querySelector(".rain").classList.add("hide");
+    this.shadowRoot.querySelector(".normal").classList.remove("hide");
   }
 
   render() {
@@ -93,13 +81,8 @@ class WeatherCard extends HTMLElement {
     <style>${WeatherCard.styles}</style>
     <div class="container">
       <weather-city class="day"></weather-city>
-      <div class="zone">
-        <img src="manzdev.png" alt="Manz.dev">
-        <div class="text">
-          <h2>Manz.dev</h2>
-          <p>En cuanto deje de llover, cierro stream. Seguro que no se alarga.</p>
-        </div>
-      </div>
+      <manzdev-status class="normal" image="manzdev.png" text="¡Qué buen día se ha quedado! Prepararé mis cosas para dar un paseo..."></manzdev-status>
+      <manzdev-status class="rain hide" image="rainmanz.png" text="Bueno, mejor sigo en stream un rato hasta que pare de llover..."></manzdev-status>
     </div>`;
   }
 }

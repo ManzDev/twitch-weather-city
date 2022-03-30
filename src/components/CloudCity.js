@@ -8,44 +8,44 @@ class CloudCity extends HTMLElement {
 
   static get styles() {
     return /* css */`
-      :host {
-        display: inline-block;
-        width: var(--width);
-        height: var(--height);
-        border-radius: 50px;
-        opacity: var(--opacity);
-        background: #fff;
-        position: absolute;
-        top: 0;
-        left: 0;
-        filter: blur(0.75px);
-        transform: translate(var(--x, -200px), var(--y));
-      }
+    :host {
+      display: inline-block;
+      width: var(--width);
+      height: var(--height);
+      border-radius: 50px;
+      opacity: calc(var(--opacity) + var(--opacity-factor, 0.5));
+      background: #fff;
+      position: absolute;
+      top: 0;
+      left: 0;
+      filter: blur(0.75px);
+      transform: translate(var(--x, -200px), var(--y));
+      transition: opacity 0.5s;
+    }
 
-      :host::before {
-        content: "";
-        display: inline-block;
-        width: 40%;
-        height: 50%;
-        background: #fff;
-        border-radius: 50px;
-        position: absolute;
-        transform: translate(50%, -50%);
+    :host::before {
+      content: "";
+      display: inline-block;
+      width: 40%;
+      height: 50%;
+      background: #fff;
+      border-radius: 50px;
+      position: absolute;
+      transform: translate(50%, -50%);
+    }
 
-      }
-
-      :host::after {
-        content: "";
-        display: inline-block;
-        width: 40%;
-        height: 70%;
-        background: #fff;
-        border-radius: 50px;
-        transform: translate(10%, -50%);
-        position: absolute;
-        top: 0;
-        right: 25px;
-      }
+    :host::after {
+      content: "";
+      display: inline-block;
+      width: 40%;
+      height: 70%;
+      background: #fff;
+      border-radius: 50px;
+      transform: translate(10%, -50%);
+      position: absolute;
+      top: 0;
+      right: 25px;
+    }
     `;
   }
 
@@ -78,7 +78,7 @@ class CloudCity extends HTMLElement {
 
     this.style.setProperty("--y", `${this.y}px`);
 
-    const opacity = (Math.floor(Math.random() * 5) / 10) + 0.5;
+    const opacity = (Math.floor(Math.random() * 4) / 10);
     this.style.setProperty("--opacity", opacity);
 
     const cloudSpeed = 20 + Math.floor(Math.random() * 20);
