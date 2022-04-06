@@ -1,9 +1,19 @@
 import "./PeopleCity.js";
 
+const TIME_TO_TOGGLE_WINDOW = 8000;
+
+const WINDOW_PROBABILITIES = {
+  dawn: 60,
+  day: 75,
+  sunset: 50,
+  night: 5
+};
+
 class BuildingWindow extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
+    this.probability = 100;
   }
 
   static get styles() {
@@ -33,15 +43,18 @@ class BuildingWindow extends HTMLElement {
   connectedCallback() {
     this.render();
 
+    document.addEventListener("DAY_MOMENT_CHANGE", (ev) => this.onDayMomentChange(ev.detail));
+  }
+
+  onDayMomentChange(moment) {
+    this.probability = WINDOW_PROBABILITIES[moment];
+
+    if (moment === "dawn") {
+      const time = 1000 + Math.floor(Math.random() * 750);
+      setTimeout(() => this.classList.contains("on") && this.toggle(), time);
+    }
+
     this.setEvent();
-  }
-
-  turnOn() {
-    this.classList.add("on");
-  }
-
-  turnOff() {
-    this.classList.remove("off");
   }
 
   toggle() {
@@ -50,10 +63,10 @@ class BuildingWindow extends HTMLElement {
   }
 
   setEvent() {
-    const ocurrs = Math.floor(Math.random() * 35);
+    const ocurrs = Math.floor(Math.random() * this.probability);
     if (ocurrs !== 0) return;
 
-    const time = 2000 + Math.floor(Math.random() * 8000);
+    const time = 2000 + Math.floor(Math.random() * TIME_TO_TOGGLE_WINDOW);
     setTimeout(() => this.toggle(), time);
   }
 

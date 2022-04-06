@@ -2,6 +2,8 @@ import "./BuildingCity.js";
 import "./CloudCity.js";
 import "./RainCity.js";
 import "./RainbowCity.js";
+import "./BatmanSignal.js";
+import "./CowAbduction.js";
 
 const DAY_MOMENT = [
   "dawn", "day", "sunset", "night"
@@ -10,6 +12,9 @@ const DAY_MOMENT = [
 const BUILDINGS_NUMBER = 6;
 const TIME_TO_CHANGE_STAGE = 10000; // 10000;
 const CLOUDS_NUMBER = 10;
+const BATSIGNAL_PROBABILITY = 5;
+const COWABDUCTION_PROBABILITY = 10;
+const TIME_TO_RANDOM_EVENTS = 6000;
 
 class WeatherCity extends HTMLElement {
   constructor() {
@@ -108,14 +113,6 @@ class WeatherCity extends HTMLElement {
         transform: translate(0, 500px);
       }
 
-      /*
-      :host(.night) rainbow-city,
-      :host(.sunset) rainbow-city {
-        visibility: hidden;
-        transition: visibility 0.25s;
-      }
-      */
-
       .clouds {
         width: 100%;
         height: 250px;
@@ -149,8 +146,17 @@ class WeatherCity extends HTMLElement {
   connectedCallback() {
     this.render();
     setInterval(() => this.changeStage(), TIME_TO_CHANGE_STAGE);
+    setInterval(() => this.enableRandomEvents(), TIME_TO_RANDOM_EVENTS);
 
-    this.addEventListener("STOP_RAIN", () => this.showRainbow());
+    this.addEventListener("STOP_RAIN", () => this.currentMoment < 2 && this.showRainbow());
+  }
+
+  enableRandomEvents() {
+    const batProbability = Math.floor(Math.random() * BATSIGNAL_PROBABILITY);
+    batProbability && this.currentMoment === 3 && this.showBatmanSignal();
+
+    const cowProbability = Math.floor(Math.random() * COWABDUCTION_PROBABILITY);
+    cowProbability === 0 && this.showCowAbduction();
   }
 
   generateBuildings() {
@@ -164,6 +170,18 @@ class WeatherCity extends HTMLElement {
   showRainbow() {
     const rainbowCity = document.createElement("rainbow-city");
     this.shadowRoot.querySelector(".clouds").appendChild(rainbowCity);
+  }
+
+  showBatmanSignal() {
+    const batmanSignal = document.createElement("batman-signal");
+    const clouds = this.shadowRoot.querySelector(".clouds");
+    clouds.insertAdjacentElement("afterend", batmanSignal);
+  }
+
+  showCowAbduction() {
+    const cowAbduction = document.createElement("cow-abduction");
+    const sun = this.shadowRoot.querySelector(".sun");
+    sun.insertAdjacentElement("beforebegin", cowAbduction);
   }
 
   changeStage() {

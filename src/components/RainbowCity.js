@@ -39,8 +39,8 @@ class RainbowCity extends HTMLElement {
     this.render();
 
     this.style.setProperty("--offset", (~~(Math.random() * 2) === 0) ? 1 : -1);
-    setTimeout(() => this.classList.add("visible"), 2000);
-    setTimeout(() => this.destroy(), 10000);
+    setTimeout(() => this.classList.add("visible"), 1000);
+    setTimeout(() => this.destroy(), 4000);
   }
 
   destroy() {
