@@ -1,0 +1,1 @@
+html{height:100vh;background-color:var(--bgcolor, #224);background-image:linear-gradient(transparent,#fff3);background-attachment:fixed;transition:background-color 1.5s ease-in-out}body{margin:0}.container{display:flex;justify-content:center;margin-top:5em}
