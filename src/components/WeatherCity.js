@@ -4,6 +4,12 @@ import "./RainCity.js";
 import "./RainbowCity.js";
 import "./BatmanSignal.js";
 import "./CowAbduction.js";
+import "./StreetLight.js";
+
+const sounds = {
+  ambulance: new Audio("sounds/ambulance.mp3"),
+  police: new Audio("sounds/police.mp3")
+};
 
 const DAY_MOMENT = [
   "dawn", "day", "sunset", "night"
@@ -14,6 +20,7 @@ const TIME_TO_CHANGE_STAGE = 10000; // 10000;
 const CLOUDS_NUMBER = 10;
 const BATSIGNAL_PROBABILITY = 5;
 const COWABDUCTION_PROBABILITY = 10;
+const SIREN_PROBABILITY = 5;
 const TIME_TO_RANDOM_EVENTS = 6000;
 
 class WeatherCity extends HTMLElement {
@@ -129,6 +136,60 @@ class WeatherCity extends HTMLElement {
         --opacity-factor: 0.25;
       }
 
+      .sirens {
+        width: 100%;
+        height: 30px;
+        position: absolute;
+        z-index: 11;
+      }
+
+      .sirens .siren.police {
+        --color-1: #f00a;
+        --color-2: #00fa;
+      }
+
+      .sirens .siren.ambulance {
+        --color-1: #ff4d00;
+        --color-2: #ffb700;
+      }
+
+      .sirens .siren {
+        width: 200px;
+        height: 200%;
+        background: linear-gradient(to right, transparent, var(--color-1), var(--color-2), transparent);
+        background-repeat: no-repeat;
+        animation:
+          siren-spin 1s steps(1, end) infinite,
+          move-siren 5s 1 linear forwards;
+        -webkit-mask-image: linear-gradient(to bottom, transparent 10%, black, transparent 90%);
+      }
+
+      .sirens .siren.reverse {
+        animation:
+          siren-spin 1s steps(1, end) infinite,
+          move-siren 5s 1 linear forwards reverse;
+      }
+
+      @keyframes siren-spin {
+        0%, 100% { transform: rotateY(25deg); }
+        50% { transform: rotateY(150deg); }
+      }
+
+      @keyframes move-siren {
+        0% { translate: -300px 0; }
+        100% { translate: 550px 0; }
+      }
+
+      .street {
+        width: 100%;
+        height: 60px;
+        position: absolute;
+        z-index: 10;
+
+        display: flex;
+        justify-content: space-evenly;
+      }
+
       .buildings {
         width: 100%;
         height: 75%;
@@ -157,10 +218,18 @@ class WeatherCity extends HTMLElement {
 
     const cowProbability = Math.floor(Math.random() * COWABDUCTION_PROBABILITY);
     cowProbability === 0 && this.showCowAbduction();
+
+    const sirenProbability = Math.floor(Math.random() * SIREN_PROBABILITY);
+    sirenProbability === 0 && this.enableSiren();
   }
 
   generateBuildings() {
     return "<building-city></building-city>".repeat(BUILDINGS_NUMBER);
+  }
+
+  generateStreetLight() {
+    const number = 2 + Math.floor(Math.random() * 3);
+    return "<street-light></street-light>".repeat(number);
   }
 
   generateClouds() {
@@ -182,6 +251,30 @@ class WeatherCity extends HTMLElement {
     const cowAbduction = document.createElement("cow-abduction");
     const sun = this.shadowRoot.querySelector(".sun");
     sun.insertAdjacentElement("beforebegin", cowAbduction);
+  }
+
+  enableSiren() {
+    const sirens = this.shadowRoot.querySelector(".sirens");
+    const isSirenEnabled = sirens.querySelector(".siren");
+
+    if (isSirenEnabled) return;
+
+    const siren = document.createElement("div");
+    const n = Math.floor(Math.random() * 2);
+    const i = Math.floor(Math.random() * 2);
+    const type = ["ambulance", "police"][n];
+    siren.classList.add("siren", type);
+    i === 0 && siren.classList.add("reverse");
+    sirens.appendChild(siren);
+
+    sounds[type].currentTime = 0;
+    sounds[type].play();
+    setTimeout(() => this.disableSiren(), 6000);
+  }
+
+  disableSiren() {
+    const siren = this.shadowRoot.querySelector(".sirens .siren");
+    siren && siren.remove();
   }
 
   changeStage() {
@@ -209,6 +302,11 @@ class WeatherCity extends HTMLElement {
       </div>
       <div class="buildings">
         ${this.generateBuildings()}
+      </div>
+      <div class="sirens">
+      </div>
+      <div class="street">
+        ${this.generateStreetLight()}
       </div>
     </div>`;
   }
